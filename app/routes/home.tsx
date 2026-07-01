@@ -1,9 +1,8 @@
 import type { Route } from "./+types/home";
 import Navbar from "~/components/Navbar";
-import {resumes} from "../../constants";
-import {resume} from "react-dom/server";
+import { resumes } from "../../constants";
 import ResumeCard from "~/components/ResumeCard";
-import {usePuterStore} from "~/lib/puter";
+import { usePuterStore } from "~/lib/puter";
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
 
@@ -15,34 +14,36 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  const { isLoading, auth } = usePuterStore();
+  const { auth } = usePuterStore();
   const location = useLocation();
-  const next = location.search.split('next=')[1];
   const navigate = useNavigate();
 
+  const next = new URLSearchParams(location.search).get("next");
 
   useEffect(() => {
-    if(auth.isAuthenticated) navigate('/auth?next=/');
-  }, [auth.isAuthenticated, next]);
-  return <main className="bg-[url('/images/bg-main.svg')] bg-cover">
-    <Navbar/>
-    {}
+    if (auth?.isAuthenticated) {
+      navigate(next || "/");
+    }
+  }, [auth?.isAuthenticated, next, navigate]);
 
-    <section className="main-section">
-      <div className="page-heading py-16">
-        <h1>Track Your Applications & Resume Ratings</h1>
-        <h2>Review your submissions and check AI-powered feedback.</h2>
+  return (
+      <main className="bg-[url('/images/bg-main.svg')] bg-cover">
+        <Navbar />
 
-      </div>
+        <section className="main-section">
+          <div className="page-heading py-16">
+            <h1>Track Your Applications & Resume Ratings</h1>
+            <h2>Review your submissions and check AI-powered feedback.</h2>
+          </div>
 
-
-    {resumes.length > 0 && (
-        <div className="resumes-section">
-          {resumes.map(resume => (
-              <ResumeCard key={resume.id} resume={resume} />
-          ))}
-        </div>
-    )}
-    </section>
-  </main>
+          {resumes?.length > 0 && (
+              <div className="resumes-section">
+                {resumes.map((resume) => (
+                    <ResumeCard key={resume.id} resume={resume} />
+                ))}
+              </div>
+          )}
+        </section>
+      </main>
+  );
 }
